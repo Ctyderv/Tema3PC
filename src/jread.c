@@ -5,16 +5,16 @@
 
 void swap( unsigned char *a, unsigned char *b) {
 	char x = *a;
-		*a = *b;
-		*b =  x;
+	*a = *b;
+	*b =  x;
 }
 
 unsigned char next_int( char *str, int *pos) {
 	unsigned char num;
-	while( 0x30 > str[*pos] || str[*pos] > 0x39)	//	while not character, advannce
+	while( 0x30 > str[*pos] || str[*pos] > 0x39)			//	while not character, advannce
 		++(*pos);
 	
-	num = str[(*pos)++]^0x30;						//	assign first digit
+	num = str[(*pos)++]^0x30;					//	assign first digit
 	while( 0x2F < str[*pos] && str[*pos] < 0x3A) {
 		num = (num<<3) + (num<<1) + (str[(*pos)++]^0x30);	//	append next digit
 	}
@@ -23,7 +23,7 @@ unsigned char next_int( char *str, int *pos) {
 }
 
 int findField( char *key) {
-	static char *keys[] = {	//	key values
+	static char *keys[] = {		//	key values
 		"signature", "file_size", "reserved", "offset",
 		"size", "width", "height", "planes", "bit_count", "compression",  
 		"image_size", "x_pixels_per_meter", "y_pixels_per_meter", 
@@ -50,13 +50,13 @@ int _jRead( char *file, char **json) {
 	*json = (char*)malloc( BUFL);
 	len = fread( *json, 1, BUFL, in);
 	
-	while( (r = fread( buf, 1, BUFL, in)) > 0) {	//	read in BUFL size chunks
-		*json = realloc( *json, len + r + 1);		//	make room
+	while( (r = fread( buf, 1, BUFL, in)) > 0) {			//	read in BUFL size chunks
+		*json = realloc( *json, len + r + 1);			//	make room
 		strncpy( *json + len, buf, r);				//	append next chunk
-		len += r;									//	update length
+		len += r;						//	update length
 	}
 	
-	(*json)[--len] = '\0';							//	append null terminator
+	(*json)[--len] = '\0';						//	append null terminator
 	fclose( in);
 	free( buf);
 
@@ -64,11 +64,11 @@ int _jRead( char *file, char **json) {
 }
 
 void readJson(char *file, char **data, char **info, int *data_len, int *info_len) {
-	int tot_len = _jRead( file, data);		//	read file
-	*data_len = strcspn( *data, "]");		//	search for end of pixel data
+	int tot_len = _jRead( file, data);			//	read file
+	*data_len = strcspn( *data, "]");			//	search for end of pixel data
 	
-	*info_len = tot_len - *data_len - 1;	//	header information length
-	*info = *data + *data_len + 1;			//	assign pointer to header info
+	*info_len = tot_len - *data_len - 1;			//	header information length
+	*info = *data + *data_len + 1;				//	assign pointer to header info
 	
 	(*data)[*data_len] = '\0';				//	mark pixel data ending by null terminator
 }
@@ -145,11 +145,11 @@ bmp *jToBmap( char *file) {
 	}
 	
 	bitmap -> data = (unsigned char*)malloc( (bitmap -> header).info.width*		//	width
-											 (bitmap -> header).info.height*	//	height
-											 (bitmap -> header).info.bitPix/8);	//	byte per pixel
+						 (bitmap -> header).info.height*	//	height
+						 (bitmap -> header).info.bitPix/8);	//	byte per pixel
 	k = i = 0;
 	while( data[k]) {
-		(bitmap -> data)[i++] = next_int( data, &k);	//	extract pixel data
+		(bitmap -> data)[i++] = next_int( data, &k);				//	extract pixel data
 	}
 	
 	free( data);
@@ -160,16 +160,16 @@ bmp *readBmap( char* file) {
 	bmp *map = (bmp*)malloc(sizeof(bmp));
 	FILE *in = fopen( file, "rb");
 	
-	fread( &(map -> header), sizeof(bmp_header), 1, in);		//	read header info
-	int pad_yes = ((3*(map -> header).info.width + 3)/4)*4,		//	width with padding
+	fread( &(map -> header), sizeof(bmp_header), 1, in);				//	read header info
+	int pad_yes = ((3*(map -> header).info.width + 3)/4)*4,				//	width with padding
 		pad_no  = 	3*(map -> header).info.width,				//	width without padding
-		pad_dif = pad_yes - pad_no;								//	padding
+		pad_dif = pad_yes - pad_no;						//	padding
 		
 	map -> data = (unsigned char*)malloc( pad_no*(map -> header).info.height);
 	for( int i = (map -> header).info.height-1; i >= 0; --i) {
 		fread( map -> data + i*pad_no, 1, pad_no, in);
 		for( int j=0; j<pad_dif; j++)
-			getc( in);	//	read padding
+			getc( in);							//	read padding
 	}
 	
 	fclose( in);
@@ -178,7 +178,7 @@ bmp *readBmap( char* file) {
 
 void writeBmap( const bmp *map, char *file) {
 	FILE *out = fopen( file, "wb");
-	fwrite( &(map -> header), sizeof(bmp_header), 1, out);		//	write header info
+	fwrite( &(map -> header), sizeof(bmp_header), 1, out);			//	write header info
 	
 	int pad_yes = ((3*(map -> header).info.width + 3)/4)*4,
 		pad_no  = 	3*(map -> header).info.width,
@@ -187,7 +187,7 @@ void writeBmap( const bmp *map, char *file) {
 	for( int i=(map -> header).info.height-1; i>-1; --i) {
 		fwrite( map -> data + i*pad_no, 1, pad_no, out);		//	write pixel data
 		for( int j=0; j<pad_dif; j++)
-			putc( 0, out);		//	add padding
+			putc( 0, out);						//	add padding
 	}
 
 	fclose(out);
